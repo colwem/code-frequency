@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/colwem/code-frequency#readme",
   "devDependencies": {
+    "mocha": "^2.4.5",
     "semantic-release": "^4.3.5"
   },
   "dependencies": {
