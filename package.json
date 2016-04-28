@@ -1,0 +1,27 @@
+{
+  "name": "code-frequency",
+  "description": "Tools for analyzing the frequency of identifiers in code",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R test/",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/colwem/code-frequency.git"
+  },
+  "author": "Martin Colwell",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/colwem/code-frequency/issues"
+  },
+  "homepage": "https://github.com/colwem/code-frequency#readme",
+  "devDependencies": {
+    "semantic-release": "^4.3.5"
+  },
+  "dependencies": {
+    "bluebird": "^3.3.5",
+    "child-process-promise": "^2.0.1",
+    "minimist": "^1.2.0"
+  }
+}

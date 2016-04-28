@@ -1,0 +1,11 @@
+
+abs(
+acos(
+add(
+and(
+append(
+append(
+argc(
+argidx(
+arglistid(
+argv(
