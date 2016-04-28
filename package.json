@@ -3,7 +3,7 @@
   "description": "Tools for analyzing the frequency of identifiers in code",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -R test/",
+    "test": "mocha --recursive test/",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
