@@ -1,60 +1,80 @@
+#!/usr/bin/env node
+
 'use strict';
-const Promise = require('bluebird');
-const exec = require('child-process-promise').exec;
-const readFile = Promise.promisify(require('fs').readFile);
-const argv = require('minimist')(process.argv.slice(2));
+const Promise = require('bluebird'),
+      exec = require('child-process-promise').exec,
+      readFile = Promise.promisify(require('fs').readFile),
+      argv = require('commander'),
+      colors = require('colors'),
+      stripAnsi = require('strip-ansi'),
+      table = require('text-table'),
+      assert = require('assert'),
+      cpus = require('os').cpus;
 
-const words = readFile(argv.list, 'utf8').then((contents) => {
-  let tmp = contents.split("\n")
-  let tmp2 = tmp.filter((line) => line !== '');
-  return tmp2;
-});
+argv
+  .version(require('./package.json').version)
+  .option('-f, --filetype <filetype>', 'Filetype argument to ag', '')
+  .option('-d, --dir <dir>', 'Directory to search', '.')
+  .option('-l, --list <list-file>', 'File with the list of words to search for')
+  .parse(process.argv);
 
-const wordCounts = words.map(
-  (word) => {
-    const count = exec(
-        `ag --vim --vimgrep --stats -Q "${word}" | grep "^\\d\\+ matches"`,
-        {cwd: argv.dir}
-      ).then((result) => {
+if(!process.argv.slice(2).length) {
+  console.log(argv);
+  argv.help();
+}
 
-        return parseInt(/\d+/.exec(result.stdout)[0]);
-      })
-      .catch((err) => {
-        console.log(err);
-        return 0;
-      });
+if(! argv.list) {
+  console.log('');
+  console.log('  error: option `-l, --list <list-file>` is required');
+  console.log('');
+  process.exit(1);
+}
 
-    const lines = exec(
-        `ag --vim --vimgrep -Q "${word}"`,
-        {cwd: argv.dir}
-      ).then((result) => {
+argv.filetype && (argv.filetype = '--' + argv.filetype);
 
-        return result.stdout;
-      })
-      .catch((err) => {
-        console.log(err);
+readFile(argv.list, 'utf8').then((contents) => {
+  return contents.split("\n").filter(line => line !== '');
+})
 
-        return '';
-      });
+.map((word) => {
+  const command = `ag ${argv.filetype} --vimgrep --stats -Q "${word}"`
 
-    return Promise.join(count, lines,
-      (count, lines) => {
+  return exec(
+      command,
+      {cwd: argv.dir}
+    ).then((result) => {
 
-        return {word, count, lines};
-      });
+      return {
+        word: word,
+        count: parseInt(/^(\d+) matches/m.exec(result.stdout)[1]),
+        lines: result.stdout.split("\n") }
+    })
+    .catch((err) => {
 
-  },
-  {concurrency: 10});
+      return {
+        word: word,
+        count: 0,
+        lines: []};
+    });
+},
+{concurrency: cpus().length})
 
-Promise.all(wordCounts).then((matches) => {
+.then((matchObjects) => {
 
-  matches.sort((a, b) => {
+  matchObjects.sort((a, b) => {
     return a.count - b.count;
   }).reverse();
 
-  matches.forEach((match) => {
-    console.log(`word: ${match.word} count: ${match.count}`);
+  const list = [[colors.cyan.bold.underline('Word'), colors.yellow.bold.underline('Count')]].concat(
+    matchObjects.map((match) => {
+      return [colors.cyan(match.word), colors.yellow(match.count)];
+    }));
+
+  const t = table(list, {
+    align: ['l', 'r'],
+    stringLength: str => stripAnsi(str).length
   });
 
-})
+  console.log(t);
 
+});

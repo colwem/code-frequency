@@ -6,6 +6,9 @@
     "test": "mocha --recursive test/",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
+  "bin": {
+    "code-frequency": "index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/colwem/code-frequency.git"
@@ -23,6 +26,10 @@
   "dependencies": {
     "bluebird": "^3.3.5",
     "child-process-promise": "^2.0.1",
-    "minimist": "^1.2.0"
+    "colors": "^1.1.2",
+    "commander": "^2.9.0",
+    "minimist": "^1.2.0",
+    "strip-ansi": "^3.0.1",
+    "text-table": "^0.2.0"
   }
 }
