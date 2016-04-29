@@ -76,7 +76,6 @@ foreground(
 function(
 garbagecollect(
 get(
-get(
 getbufline(
 getbufvar(
 getchar(
